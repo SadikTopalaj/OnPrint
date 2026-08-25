@@ -1,0 +1,72 @@
+/* ==========================================================================
+   OnPrint - Design tokens
+   Hentet DIREKTE fra onprint.no via live browser-inspeksjon (computed styles).
+   Dette er kilden til sannhet for alle andre stilark.
+   ========================================================================== */
+
+:root {
+  /* --- Farger --- */
+  --color-hero-bg: #111111;
+  --color-footer-bg: #080f17;
+  --color-navy: #0b1a24;
+  --color-light-bg: #f0f8fc;
+  --color-accent: #00c4e0;
+  --color-accent-soft: rgba(0, 196, 224, 0.12);
+  --color-text-on-dark: #ffffff;
+  --color-text-on-dark-muted: rgba(255, 255, 255, 0.62);
+  --color-text-on-light-muted: #5b6b74;
+  --color-border-light: rgba(11, 26, 36, 0.12);
+  --color-border-dark: rgba(255, 255, 255, 0.14);
+
+  /* --- Typografi --- */
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* --- Form --- */
+  --radius-sharp: 2px;
+  --radius-card: 4px;
+  --letter-spacing-label: 1.8px;
+  --letter-spacing-button: 1.5px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-navy);
+  background: var(--color-light-bg);
+  line-height: 1.5;
+}
+
+a { color: inherit; }
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-label);
+  color: var(--color-accent);
+}
+
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-button);
+  padding: 14px 32px;
+  border-radius: var(--radius-sharp);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: opacity 0.15s ease;
+}
+.btn:hover { opacity: 0.88; }
+.btn-primary { background: var(--color-accent); color: #000; }
+.btn-outline { background: transparent; border-color: var(--color-border-dark); color: var(--color-text-on-dark); }
+.btn-outline-light { background: transparent; border-color: var(--color-border-light); color: var(--color-navy); }

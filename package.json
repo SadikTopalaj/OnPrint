@@ -1,0 +1,13 @@
+{
+  "name": "onprint-shop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OnPrint.no - full nettside med nettbutikk-del (Stripe Checkout) og kontaktskjema",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "stripe": "^17.0.0",
+    "resend": "^4.0.0"
+  }
+}

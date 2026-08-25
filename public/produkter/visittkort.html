@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visittkort - Bestill online | OnPrint</title>
+<meta name="description" content="Bestill visittkort online. Velg antall og utforming, betal direkte med kort, Apple Pay eller Klarna.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,900&family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/shop.css">
+</head>
+<body>
+
+<header class="shop-header">
+  <a href="/public" class="logo">ON PRINT</a>
+  <nav>
+    <a href="/public">Forside</a>
+    <a href="/public#priser">Produkter</a>
+    <a href="/public#kontakt">Kontakt</a>
+  </nav>
+</header>
+
+<main class="product-page">
+
+  <div class="product-media">
+    <span class="tag">Trykkprodukter</span>
+    <p class="placeholder-label">
+      Produktbilde av visittkort<br>(sett inn ekte foto - softtouch/folietrykk)
+    </p>
+  </div>
+
+  <div class="product-info">
+    <span class="eyebrow">Trykkprodukter</span>
+    <h1 class="product-title">Visittkort</h1>
+    <p class="product-desc">
+      Visittkort med softtouch, folietrykk og papirtykkelser opp til 600 gsm.
+      Velg antall og utforming under - du betaler direkte og vi setter i gang produksjonen.
+    </p>
+
+    <div class="option-group">
+      <label class="group-label">Utforming</label>
+      <div class="pill-group" id="variant-group" role="radiogroup" aria-label="Velg utforming">
+        <button type="button" class="pill active" data-variant="1-sidig" role="radio" aria-checked="true">1-sidig</button>
+        <button type="button" class="pill" data-variant="2-sidig" role="radio" aria-checked="false">2-sidig</button>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <label class="group-label">Antall</label>
+      <div class="pill-group" id="quantity-group" role="radiogroup" aria-label="Velg antall">
+        <button type="button" class="pill active" data-qty="200" role="radio" aria-checked="true">200 stk</button>
+        <button type="button" class="pill" data-qty="300" role="radio" aria-checked="false">300 stk</button>
+        <button type="button" class="pill" data-qty="500" role="radio" aria-checked="false">500 stk</button>
+        <button type="button" class="pill" data-qty="1000" role="radio" aria-checked="false">1 000 stk</button>
+        <button type="button" class="pill" data-qty="2500" role="radio" aria-checked="false">2 500 stk</button>
+        <button type="button" class="pill" data-qty="5000" role="radio" aria-checked="false">5 000 stk</button>
+      </div>
+    </div>
+
+    <div class="price-box">
+      <div class="price-row"><span>Pris eks. mva</span><span id="price-ex-vat">600,00 kr</span></div>
+      <div class="price-row"><span>Mva (25%)</span><span id="price-vat">150,00 kr</span></div>
+      <div class="price-total"><span>Totalt</span><span class="amount" id="price-total">750,00 kr</span></div>
+      <p class="delivery-note">Estimert leveringstid: 3-5 virkedager <em>(bekreft med OnPrint)</em></p>
+    </div>
+
+    <button class="buy-button" id="buy-button">Betal og bestill</button>
+    <p class="error-message" id="error-message"></p>
+
+    <div class="payment-icons"><span>Betaling via Stripe · Kort · Apple Pay · Klarna</span></div>
+  </div>
+
+</main>
+
+<script>
+  const PRICES = {
+    '1-sidig': { 200: 60000, 300: 66500, 500: 81000, 1000: 119000, 2500: 239300, 5000: 297000 },
+    '2-sidig': { 200: 70000, 300: 76000, 500: 93600, 1000: 144500, 2500: 280500, 5000: 344300 },
+  };
+  const VAT_RATE = 0.25;
+  let state = { variant: '1-sidig', quantity: 200 };
+
+  function formatKr(ore) {
+    return (ore / 100).toLocaleString('nb-NO', { minimumFractionDigits: 2 }) + ' kr';
+  }
+
+  function updatePrice() {
+    const exVat = PRICES[state.variant][state.quantity];
+    const vat = Math.round(exVat * VAT_RATE);
+    const total = exVat + vat;
+    document.getElementById('price-ex-vat').textContent = formatKr(exVat);
+    document.getElementById('price-vat').textContent = formatKr(vat);
+    document.getElementById('price-total').textContent = formatKr(total);
+  }
+
+  function wirePillGroup(groupId, key, parser) {
+    const group = document.getElementById(groupId);
+    group.querySelectorAll('.pill').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.pill').forEach((b) => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
+        btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
+        state[key] = parser(btn.dataset[key === 'variant' ? 'variant' : 'qty']);
+        updatePrice();
+      });
+    });
+  }
+  wirePillGroup('variant-group', 'variant', (v) => v);
+  wirePillGroup('quantity-group', 'quantity', (q) => Number(q));
+
+  document.getElementById('buy-button').addEventListener('click', async () => {
+    const button = document.getElementById('buy-button');
+    const errorEl = document.getElementById('error-message');
+    errorEl.style.display = 'none';
+    button.disabled = true;
+    button.textContent = 'Kobler til betaling...';
+    try {
+      const res = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: 'visittkort', variant: state.variant, quantity: state.quantity }),
+      });
+      if (!res.ok) throw new Error('Serverfeil ved oppretting av betaling');
+      const data = await res.json();
+      if (!data.url) throw new Error('Fikk ingen betalingslenke');
+      window.location.href = data.url;
+    } catch (err) {
+      console.error(err);
+      errorEl.textContent = 'Noe gikk galt. Prøv igjen, eller kontakt oss direkte.';
+      errorEl.style.display = 'block';
+      button.disabled = false;
+      button.textContent = 'Betal og bestill';
+    }
+  });
+
+  updatePrice();
+</script>
+
+</body>
+</html>
